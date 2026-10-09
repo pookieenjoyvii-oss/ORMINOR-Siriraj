@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>คู่มือผู้ป่วยผ่าตัดด้วยยาชาเฉพาะที่</title>
+<style>
+  :root {
+    --bg1: #fff7ed;
+    --bg2: #ecfeff;
+    --card: #ffffff;
+    --ink: #1e293b;
+    --muted: #64748b;
+    --before: #2563eb;   /* ก่อน - ฟ้า */
+    --before-bg: #dbeafe;
+    --during: #7c3aed;   /* ระหว่าง - ม่วง */
+    --during-bg: #ede9fe;
+    --after: #16a34a;    /* หลัง - เขียว */
+    --after-bg: #dcfce7;
+    --warn: #dc2626;
+    --warn-bg: #fee2e2;
+    --accent: #f97316;   /* ส้มสดใส */
+    --accent-dark: #ea580c;
+    --ok: #16a34a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Prompt", "Sarabun", system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: linear-gradient(160deg, var(--bg1), var(--bg2));
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 14px 48px;
+  }
+
+  header {
+    text-align: center;
+    max-width: 640px;
+    margin-bottom: 18px;
+  }
+  header .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 999px;
+    letter-spacing: .3px;
+    margin-bottom: 10px;
+  }
+  header h1 {
+    margin: 0 0 6px;
+    font-size: 1.5rem;
+    line-height: 1.35;
+  }
+  header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: .95rem;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 560px;
+  }
+
+  /* progress */
+  .progress {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+  .progress .dot {
+    flex: 1;
+    height: 8px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    transition: background .3s;
+  }
+  .progress .dot.done { background: var(--accent); }
+
+  .card {
+    background: var(--card);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, .08);
+    padding: 26px 22px;
+    animation: pop .3s ease;
+  }
+  @keyframes pop {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .phase-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .82rem;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  .phase-before { background: var(--before-bg); color: var(--before); }
+  .phase-during { background: var(--during-bg); color: var(--during); }
+  .phase-after  { background: var(--after-bg);  color: var(--after); }
+
+  .q-num { color: var(--muted); font-size: .85rem; margin-bottom: 4px; }
+  .q-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0 0 16px;
+    line-height: 1.4;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt {
+    text-align: left;
+    font: inherit;
+    font-size: 1.02rem;
+    padding: 14px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: border-color .15s, background .15s, transform .1s;
+  }
+  .opt .emoji { font-size: 1.4rem; }
+  .opt:hover { border-color: var(--accent); background: #fff7ed; }
+  .opt:active { transform: scale(.99); }
+
+  /* advice box */
+  .advice {
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-top: 4px;
+    font-size: 1.02rem;
+    line-height: 1.65;
+  }
+  .advice h3 { margin: 0 0 8px; font-size: 1.05rem; display: flex; align-items: center; gap: 8px; }
+  .advice ul { margin: 8px 0 0; padding-left: 20px; }
+  .advice li { margin-bottom: 6px; }
+  .advice.info  { background: var(--before-bg); border-left: 6px solid var(--before); }
+  .advice.good  { background: var(--after-bg);  border-left: 6px solid var(--after); }
+  .advice.warn  { background: var(--warn-bg);   border-left: 6px solid var(--warn); color: #7f1d1d; }
+
+  .alert {
+    background: var(--warn-bg);
+    border: 2px dashed var(--warn);
+    color: #7f1d1d;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-top: 14px;
+    font-weight: 600;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .alert .emoji { font-size: 1.3rem; }
+
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  button.btn {
+    font: inherit;
+    font-weight: 700;
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: transform .1s, filter .15s;
+  }
+  button.btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: #fff; flex: 1; }
+  .btn-primary:hover { filter: brightness(1.05); }
+  .btn-ghost { background: #f1f5f9; color: var(--ink); }
+  .btn-ghost:hover { background: #e2e8f0; }
+
+  /* contact */
+  .contact {
+    margin-top: 20px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 18px 20px;
+    box-shadow: 0 6px 18px rgba(15,23,42,.06);
+    text-align: center;
+  }
+  .contact h3 { margin: 0 0 6px; font-size: 1.05rem; }
+  .contact p { margin: 0 0 12px; color: var(--muted); font-size: .9rem; }
+  .call-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--ok);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.15rem;
+    padding: 12px 24px;
+    border-radius: 14px;
+    box-shadow: 0 6px 16px rgba(22,163,74,.3);
+    transition: transform .1s, filter .15s;
+  }
+  .call-btn:hover { filter: brightness(1.05); }
+  .call-btn:active { transform: scale(.97); }
+  .contact .hours { margin-top: 10px; font-size: .85rem; color: var(--muted); }
+
+  .start-list { text-align: left; margin: 14px 0 0; padding: 0; list-style: none; }
+  .start-list li {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 10px 0; border-bottom: 1px solid #f1f5f9;
+    font-size: .98rem;
+  }
+  .start-list li:last-child { border-bottom: none; }
+  .start-list .emoji { font-size: 1.3rem; }
+
+  footer { margin-top: 24px; color: var(--muted); font-size: .78rem; text-align: center; max-width: 560px; }
+</style>
+</head>
+<body>
+  <header>
+    <span class="badge">ยาชาเฉพาะที่ (Local Anesthesia)</span>
+    <h1>คู่มือการปฏิบัติตัวสำหรับผู้ป่วยผ่าตัด<br>หน่วยผ่าตัดเล็กและชะแผล ศิริราช</h1>
+    <p>ตอบคำถามสั้น ๆ ทีละข้อ เพื่อรับคำแนะนำที่เหมาะกับคุณ</p>
+  </header>
+
+  <div class="wrap">
+    <div class="progress" id="progress"></div>
+    <div class="card" id="card"></div>
+
+    <div class="contact">
+      <h3>📞 มีคำถามเพิ่มเติม?</h3>
+      <p>โทรสอบถามเจ้าหน้าที่ได้ในเวลาราชการ</p>
+      <a class="call-btn" href="tel:024197360">
+        <span>☎️</span> 02-419 7360
+      </a>
+      <div class="hours">🕗 เวลาราชการ จันทร์–ศุกร์ 08:00–16:00 น.</div>
+    </div>
+  </div>
+
+  <footer>
+    ข้อมูลนี้เป็นคำแนะนำทั่วไป โปรดปฏิบัติตามคำสั่งของแพทย์และพยาบาลผู้ดูแลเป็นหลัก
+  </footer>
+
+<script>
+  // ===== ชุดคำถาม 7 ข้อ แบ่งเป็น ก่อน / ระหว่าง / หลัง ผ่าตัด =====
+  const steps = [
+    // -------- หน้าเริ่มต้น --------
+    {
+      type: "intro",
+      phase: null,
+      title: "ยินดีต้อนรับ 👋",
+      body: `
+        <p style="margin:0 0 6px;color:var(--muted);">
+          แอปนี้จะช่วยแนะนำการเตรียมตัวและดูแลตัวเองสำหรับการผ่าตัดด้วยยาชาเฉพาะที่
+          แบ่งเป็น 3 ช่วง:
+        </p>
+        <ul class="start-list">
+          <li><span class="emoji">🔵</span><div><b>ก่อนผ่าตัด</b> — การเตรียมตัว</div></li>
+          <li><span class="emoji">🟣</span><div><b>ระหว่างผ่าตัด</b> — สิ่งที่จะเกิดขึ้น</div></li>
+          <li><span class="emoji">🟢</span><div><b>หลังผ่าตัด</b> — การดูแลแผลและตัวเอง</div></li>
+        </ul>`
+    },
+
+    // -------- ก่อนผ่าตัด (ข้อ 1-3) --------
+    {
+      type: "question",
+      phase: "before",
+      question: "ข้อ 1 — คุณงดน้ำงดอาหารตามที่พยาบาลแจ้งหรือยัง?",
+      options: [
+        { emoji: "✅", text: "งดตามเวลาที่แจ้งแล้ว", advice: {
+            cls: "good", title: "เยี่ยมมาก 👍",
+            html: "สำหรับยาชาเฉพาะที่ ส่วนใหญ่ <b>ไม่จำเป็นต้องงดน้ำงดอาหาร</b> แต่หากพยาบาลแจ้งให้งด โปรดปฏิบัติตามเวลานั้นอย่างเคร่งครัด" } },
+        { emoji: "❓", text: "ยังไม่แน่ใจ / ไม่มีใครแจ้ง", advice: {
+            cls: "info", title: "ตรวจสอบก่อนนะคะ",
+            html: "<ul><li>ยาชาเฉพาะที่โดยทั่วไปรับประทานอาหารได้ตามปกติ</li><li>หากไม่แน่ใจ โปรดโทรสอบถามเจ้าหน้าที่ตามเบอร์ด้านล่าง</li></ul>" } }
+      ]
+    },
+    {
+      type: "question",
+      phase: "before",
+      question: "ข้อ 2 — คุณมีโรคประจำตัว แพ้ยา หรือทานยาละลายลิ่มเลือดอยู่หรือไม่?",
+      options: [
+        { emoji: "💊", text: "มี (เช่น เบาหวาน ความดัน แพ้ยา ยาละลายเลือด)", advice: {
+            cls: "warn", title: "⚠️ สำคัญมาก — ต้องแจ้งเจ้าหน้าที่",
+            html: "<ul><li>แจ้งชื่อยาและโรคประจำตัวทั้งหมดก่อนผ่าตัด</li><li>ยาละลายลิ่มเลือด (เช่น Aspirin, Warfarin) อาจต้องหยุดตามคำสั่งแพทย์</li><li>ห้ามหยุดยาเองโดยไม่ปรึกษาแพทย์</li></ul>" } },
+        { emoji: "🙂", text: "ไม่มี / สุขภาพแข็งแรงดี", advice: {
+            cls: "good", title: "ดีมากค่ะ",
+            html: "ถึงอย่างนั้น หากมีอาการผิดปกติก่อนวันผ่าตัด เช่น เป็นไข้ ไม่สบาย โปรดแจ้งเจ้าหน้าที่ล่วงหน้า" } }
+      ]
+    },
+    {
+      type: "question",
+      phase: "before",
+      question: "ข้อ 3 — ในวันผ่าตัด คุณเตรียมตัวมาอย่างไร?",
+      options: [
+        { emoji: "👕", text: "สวมเสื้อผ้าหลวมสบาย ทำความสะอาดร่างกาย มีคนมาด้วย", advice: {
+            cls: "good", title: "เตรียมพร้อมดีเยี่ยม",
+            html: "<ul><li>สวมเสื้อผ้าสะดวกต่อการเปิดบริเวณผ่าตัด</li><li>ถอดเครื่องประดับ ของมีค่า และทาเล็บออก</li><li>พาญาติมาด้วยเพื่อช่วยพากลับบ้าน</li></ul>" } },
+        { emoji: "🤔", text: "ยังไม่ได้เตรียม / ไม่รู้ว่าต้องเตรียมอะไร", advice: {
+            cls: "info", title: "เตรียมตามนี้ได้เลย",
+            html: "<ul><li>อาบน้ำทำความสะอาดร่างกายให้เรียบร้อย</li><li>สวมเสื้อผ้าหลวมสบาย งดแต่งหน้า ทาเล็บ</li><li>ถอดคอนแทคเลนส์ ฟันปลอม เครื่องประดับ</li><li>พาญาติหรือเพื่อนมาด้วย 1 คน</li></ul>" } }
+      ]
+    },
+
+    // -------- ระหว่างผ่าตัด (ข้อ 4-5) --------
+    {
+      type: "question",
+      phase: "during",
+      question: "ข้อ 4 — คุณรู้ไหมว่าระหว่างฉีดยาชาจะรู้สึกอย่างไร?",
+      options: [
+        { emoji: "😌", text: "รู้แล้ว รู้สึกเฉย ๆ ไม่กังวล", advice: {
+            cls: "good", title: "ดีค่ะ ผ่อนคลายได้เลย",
+            html: "ขณะฉีดยาชาจะรู้สึก<b>เจ็บจี๊ด ๆ และตึงเล็กน้อย</b> จากนั้นบริเวณนั้นจะชา คุณจะยัง<b>รู้สึกตัวตลอด</b> แต่จะไม่เจ็บแผล" } },
+        { emoji: "😟", text: "รู้สึกกังวล / กลัวเจ็บ", advice: {
+            cls: "info", title: "ไม่ต้องกังวลนะคะ",
+            html: "<ul><li>ยาชาเฉพาะที่ทำให้ชาเฉพาะบริเวณผ่าตัด คุณจะรู้สึกตัวตลอดเวลา</li><li>อาจรู้สึกสัมผัส ดึง หรือกดได้ แต่จะ<b>ไม่เจ็บ</b></li><li>หายใจเข้าออกช้า ๆ หากกังวลให้บอกทีมผ่าตัดได้ทันที</li></ul>" } }
+      ]
+    },
+    {
+      type: "question",
+      phase: "during",
+      question: "ข้อ 5 — ระหว่างผ่าตัดหากรู้สึกผิดปกติ คุณควรทำอย่างไร?",
+      options: [
+        { emoji: "🙋", text: "บอกทีมแพทย์/พยาบาลทันที", advice: {
+            cls: "good", title: "ถูกต้องค่ะ",
+            html: "หากรู้สึก<b>เจ็บ ใจสั่น หน้ามืด เวียนศีรษะ แน่นหน้าอก หรือชาผิดปกติ</b> ให้แจ้งทีมผ่าตัดทันที อย่าฝืนทน ทีมพร้อมดูแลคุณตลอดเวลา" } },
+        { emoji: "🤐", text: "อดทนไว้ ไม่กล้าบอก", advice: {
+            cls: "warn", title: "⚠️ ไม่ควรทนนะคะ",
+            html: "โปรด<b>แจ้งทันที</b>เมื่อรู้สึกผิดปกติ การบอกอาการช่วยให้ทีมดูแลคุณได้ปลอดภัยที่สุด ไม่ต้องเกรงใจ" } }
+      ]
+    },
+
+    // -------- หลังผ่าตัด (ข้อ 6-7) --------
+    {
+      type: "question",
+      phase: "after",
+      question: "ข้อ 6 — หลังผ่าตัด คุณจะดูแลแผลอย่างไร?",
+      options: [
+        { emoji: "🩹", text: "รักษาแผลให้แห้งสะอาด ไม่โดนน้ำตามที่แนะนำ", advice: {
+            cls: "good", title: "ดูแลได้ดีมาก",
+            html: "<ul><li>รักษาแผลให้<b>แห้งและสะอาด</b> ห้ามแกะเกาหรือดึงพลาสเตอร์</li><li>หลีกเลี่ยงไม่ให้แผลโดนน้ำตามระยะที่แพทย์แนะนำ</li><li>มาตามนัดเพื่อตัดไหม/ตรวจแผล</li><li>ทานยาแก้ปวด/ยาฆ่าเชื้อให้ครบตามสั่ง</li></ul>" } },
+        { emoji: "🤷", text: "ยังไม่รู้วิธีดูแลแผล", advice: {
+            cls: "info", title: "ดูแลง่าย ๆ ตามนี้",
+            html: "<ul><li>ไม่ให้แผลโดนน้ำ 1–2 วันแรก (หรือตามแพทย์แนะนำ)</li><li>ห้ามแกะ เกา หรือเปิดแผลเอง</li><li>ประคบเย็นลดบวมใน 24 ชม.แรกได้</li><li>ยกบริเวณผ่าตัดให้สูงเพื่อลดบวม</li></ul>" } }
+      ]
+    },
+    {
+      type: "question",
+      phase: "after",
+      question: "ข้อ 7 — อาการแบบใดที่ต้องรีบกลับมาพบแพทย์?",
+      options: [
+        { emoji: "🚨", text: "ดูสัญญาณอันตรายที่ต้องรีบมาโรงพยาบาล", advice: {
+            cls: "warn", title: "🚨 รีบพบแพทย์ทันที หากมีอาการเหล่านี้",
+            html: "<ul><li>เลือดออกจากแผลไม่หยุด / ซึมมาก</li><li>แผลบวม แดง ร้อน มีหนอง หรือมีกลิ่น</li><li>มีไข้สูงเกิน 38°C</li><li>ปวดแผลรุนแรงขึ้นเรื่อย ๆ ทั้งที่ทานยาแล้ว</li><li>ชา อ่อนแรง หรือสีผิวบริเวณผ่าตัดเปลี่ยนไป</li></ul>" } }
+      ]
+    },
+
+    // -------- หน้าสรุป --------
+    {
+      type: "summary",
+      phase: null,
+      title: "เสร็จเรียบร้อย 🎉",
+      body: `
+        <div class="advice good">
+          <h3>✅ คุณพร้อมแล้ว!</h3>
+          <p style="margin:0;">คุณได้อ่านคำแนะนำครบทั้ง 3 ช่วงแล้ว — ก่อน ระหว่าง และหลังผ่าตัด
+          ขอให้การผ่าตัดราบรื่นและหายไว ๆ นะคะ</p>
+        </div>
+        <div class="alert" style="margin-top:14px;">
+          <span class="emoji">💡</span>
+          <div>จำไว้: ปฏิบัติตามคำแนะนำของแพทย์และพยาบาลเป็นหลักเสมอ
+          และมาตามนัดทุกครั้ง</div>
+        </div>`
+    }
+  ];
+
+  let current = 0;
+  const card = document.getElementById("card");
+  const progressEl = document.getElementById("progress");
+
+  // นับเฉพาะหน้าคำถามเพื่อแสดง progress
+  const questionIndexes = steps
+    .map((s, i) => s.type === "question" ? i : -1)
+    .filter(i => i >= 0);
+
+  function phaseTag(phase) {
+    if (phase === "before") return '<span class="phase-tag phase-before">🔵 ก่อนผ่าตัด</span>';
+    if (phase === "during") return '<span class="phase-tag phase-during">🟣 ระหว่างผ่าตัด</span>';
+    if (phase === "after")  return '<span class="phase-tag phase-after">🟢 หลังผ่าตัด</span>';
+    return "";
+  }
+
+  function renderProgress() {
+    progressEl.innerHTML = questionIndexes
+      .map(i => `<div class="dot ${current >= i ? "done" : ""}"></div>`)
+      .join("");
+  }
+
+  function navButtons(showNext = true, nextLabel = "ถัดไป →") {
+    return `
+      <div class="nav">
+        ${current > 0 ? '<button class="btn btn-ghost" onclick="prev()">← ย้อนกลับ</button>' : '<span></span>'}
+        ${showNext ? `<button class="btn btn-primary" onclick="next()">${nextLabel}</button>` : ''}
+      </div>`;
+  }
+
+  function render() {
+    const step = steps[current];
+    renderProgress();
+
+    if (step.type === "intro") {
+      card.innerHTML = `
+        <h2 class="q-title">${step.title}</h2>
+        ${step.body}
+        ${navButtons(true, "เริ่มเลย →")}`;
+      return;
+    }
+
+    if (step.type === "summary") {
+      card.innerHTML = `
+        <h2 class="q-title">${step.title}</h2>
+        ${step.body}
+        <div class="nav">
+          <button class="btn btn-ghost" onclick="prev()">← ย้อนกลับ</button>
+          <button class="btn btn-primary" onclick="restart()">⟲ เริ่มใหม่</button>
+        </div>`;
+      return;
+    }
+
+    // question
+    const qNum = questionIndexes.indexOf(current) + 1;
+    card.innerHTML = `
+      ${phaseTag(step.phase)}
+      <div class="q-num">คำถามที่ ${qNum} จาก ${questionIndexes.length}</div>
+      <h2 class="q-title">${step.question}</h2>
+      <div class="options" id="options">
+        ${step.options.map((o, idx) =>
+          `<button class="opt" onclick="choose(${idx})">
+             <span class="emoji">${o.emoji}</span><span>${o.text}</span>
+           </button>`).join("")}
+      </div>
+      <div id="answer">
+        <p class="hint" style="color:var(--muted);font-size:.9rem;margin:12px 0 0;">👆 เลือกคำตอบเพื่อดูคำแนะนำ</p>
+      </div>`;
+  }
+
+  function choose(idx) {
+    const step = steps[current];
+    const a = step.options[idx].advice;
+    const answerEl = document.getElementById("answer");
+    answerEl.innerHTML = `
+      <div class="advice ${a.cls}">
+        <h3>${a.title}</h3>
+        <div>${a.html}</div>
+      </div>`;
+    // ไฮไลต์ตัวเลือกที่เลือก
+    const opts = document.querySelectorAll("#options .opt");
+    opts.forEach((o, i) => {
+      o.style.borderColor = i === idx ? "var(--accent)" : "#e2e8f0";
+      o.style.background = i === idx ? "#fff7ed" : "#fff";
+    });
+    // แสดงปุ่มถัดไปใน answer (ย้อนกลับได้ถ้าไม่ใช่หน้าแรก)
+    const isLastQuestion = current === questionIndexes[questionIndexes.length - 1];
+    answerEl.innerHTML += `
+      <div class="nav">
+        ${current > 0 ? '<button class="btn btn-ghost" onclick="prev()">← ย้อนกลับ</button>' : '<span></span>'}
+        <button class="btn btn-primary" onclick="next()">${isLastQuestion ? "ดูสรุป →" : "ถัดไป →"}</button>
+      </div>`;
+  }
+
+  function next() {
+    if (current < steps.length - 1) { current++; render(); scrollTop(); }
+  }
+  function prev() {
+    if (current > 0) { current--; render(); scrollTop(); }
+  }
+  function restart() { current = 0; render(); scrollTop(); }
+  function scrollTop() { window.scrollTo({ top: 0, behavior: "smooth" }); }
+
+  render();
+</script>
+</body>
+</html>
